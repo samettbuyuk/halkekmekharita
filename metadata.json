@@ -1,0 +1,6 @@
+{
+  "name": "İHE İstanbul",
+  "description": "İstanbul Halk Ekmek büfelerini harita üzerinde keşfedin. Güncel verilerle en yakın büfeyi bulun.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": []
+}
