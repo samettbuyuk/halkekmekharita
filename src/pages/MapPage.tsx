@@ -43,6 +43,21 @@ const UserIcon = L.divIcon({
   iconAnchor: [12, 12]
 });
 
+const SelectedIcon = L.divIcon({
+  className: 'selected-kiosk-marker',
+  html: `
+    <div class="relative scale-125 z-[1000]">
+      <div class="w-10 h-10 bg-blue-600 rounded-full border-2 border-white shadow-2xl flex items-center justify-center text-white animate-bounce">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bread"><path d="m5 11 4-7"/><path d="m19 11-4-7"/><path d="M2 13v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M21 20H3"/></svg>
+      </div>
+      <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-blue-600 rotate-45 border-r border-b border-white"></div>
+    </div>
+  `,
+  iconSize: [40, 44],
+  iconAnchor: [20, 44],
+  popupAnchor: [0, -42]
+});
+
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQPDPM9ISg3Qy-v4DIru3DlIPdxvypdBjrRnkHpW5XgnrumZl12wdTqWFhkXF8-8O6RwYFsnobZm8OX/pub?output=csv';
 
 export default function MapPage() {
@@ -53,6 +68,7 @@ export default function MapPage() {
   const [map, setMap] = useState<L.Map | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [nearestKiosk, setNearestKiosk] = useState<IHEKiosk | null>(null);
+  const [selectedKioskId, setSelectedKioskId] = useState<string | null>(null);
 
   useEffect(() => {
     // Get user location
@@ -186,6 +202,7 @@ export default function MapPage() {
   }, [kiosks, search, selectedDistrict, userLocation]);
 
   const handleKioskClick = (kiosk: IHEKiosk) => {
+    setSelectedKioskId(kiosk.id);
     if (map) {
       map.flyTo([kiosk.lat, kiosk.lng], 17, { duration: 1.5 });
     }
@@ -278,7 +295,7 @@ export default function MapPage() {
                   animate={{ opacity: 1, x: 0 }}
                   whileHover={{ x: 5 }}
                   className={`p-5 rounded-[24px] cursor-pointer transition-all border group ${
-                    map?.getCenter().lat === kiosk.lat ? 'bg-rose-50 border-rose-200 shadow-lg shadow-rose-100' : 'bg-white border-slate-100 hover:border-rose-200 hover:bg-slate-50'
+                    selectedKioskId === kiosk.id ? 'bg-rose-50 border-rose-200 shadow-lg shadow-rose-100' : 'bg-white border-slate-100 hover:border-rose-200 hover:bg-slate-50'
                   }`}
                   onClick={() => handleKioskClick(kiosk)}
                 >
@@ -350,28 +367,39 @@ export default function MapPage() {
 
           {sortedKiosks.map((kiosk, index) => {
             const isNearest = userLocation && index === 0;
+            const isSelected = selectedKioskId === kiosk.id;
             const displayName = kiosk.name.includes('HALK EKMEK') || kiosk.name.startsWith('İHE') 
               ? kiosk.name 
               : `İHE ${kiosk.name}`;
+            
+            let markerIcon = BreadIcon;
+            if (isSelected) {
+              markerIcon = SelectedIcon;
+            } else if (isNearest) {
+              markerIcon = L.divIcon({
+                className: 'nearest-marker',
+                html: `
+                  <div class="relative scale-110">
+                    <div class="w-10 h-10 bg-blue-600 rounded-full border-2 border-white shadow-2xl flex items-center justify-center text-white animate-pulse">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bread"><path d="m5 11 4-7"/><path d="m19 11-4-7"/><path d="M2 13v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M21 20H3"/></svg>
+                    </div>
+                    <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-blue-600 rotate-45 border-r border-b border-white"></div>
+                  </div>
+                `,
+                iconSize: [40, 44],
+                iconAnchor: [20, 44],
+                popupAnchor: [0, -42]
+              });
+            }
             
             return (
               <Marker 
                 key={kiosk.id} 
                 position={[kiosk.lat, kiosk.lng]}
-                icon={isNearest ? L.divIcon({
-                  className: 'nearest-marker',
-                  html: `
-                    <div class="relative scale-110">
-                      <div class="w-10 h-10 bg-blue-600 rounded-full border-2 border-white shadow-2xl flex items-center justify-center text-white animate-pulse">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bread"><path d="m5 11 4-7"/><path d="m19 11-4-7"/><path d="M2 13v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M21 20H3"/></svg>
-                      </div>
-                      <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-blue-600 rotate-45 border-r border-b border-white"></div>
-                    </div>
-                  `,
-                  iconSize: [40, 44],
-                  iconAnchor: [20, 44],
-                  popupAnchor: [0, -42]
-                }) : BreadIcon}
+                icon={markerIcon}
+                eventHandlers={{
+                  click: () => setSelectedKioskId(kiosk.id)
+                }}
               >
                 <Tooltip direction="top" offset={[0, -32]} opacity={1}>
                   <div className="font-bold flex items-center space-x-2">

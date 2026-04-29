@@ -65,8 +65,8 @@ export default function AboutPage() {
             >
               <div className="aspect-[4/5] rounded-[40px] overflow-hidden shadow-2xl border-8 border-white rotate-2">
                 <img 
-                  src="https://images.unsplash.com/photo-1555507036-31c3b5a0443a?auto=format&fit=crop&q=80&w=1000" 
-                  alt="Modern Halk Ekmek Tesisleri" 
+                  src="https://images.unsplash.com/photo-1549931319-a545dcf3bc73?auto=format&fit=crop&q=80&w=1000" 
+                  alt="Taze İstanbul Ekmeği" 
                   className="w-full h-full object-cover"
                 />
               </div>
