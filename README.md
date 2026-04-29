@@ -1,20 +1,50 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# İstanbul Halk Ekmek (İHE) Haritası
 
-# Run and deploy your AI Studio app
+Bu uygulama, İstanbul'daki tüm Halk Ekmek (İHE) büfelerini modern bir arayüz ve interaktif bir harita üzerinde görmenizi sağlar.
 
-This contains everything you need to run your app locally.
+## 🚀 Özellikler
 
-View your app in AI Studio: https://ai.studio/apps/a848e828-f946-4ec9-b1c9-089fa0f7aadc
+- **Canlı Konum Takibi:** Mevcut konumunuzu harita üzerinde görebilirsiniz.
+- **Akıllı Sıralama:** Büfeler konumunuza olan uzaklığına göre otomatik olarak sıralanır.
+- **En Yakın Büfe:** Tek tıkla size en yakın büfeyi bulur ve yol tarifi başlatır.
+- **Detaylı Bilgi:** Büfe adı, tam adresi ve telefon bilgilerine anında erişim.
+- **Veri Kaynağı:** Güncel CSV verileri üzerinden anlık veri işleme.
+- **Önbellek Sistemi:** Nominatim API üzerinden alınan koordinatlar yerel hafızada (LocalStorage) saklanarak performans artışı sağlar.
 
-## Run Locally
+## 🛠️ Teknolojiler
 
-**Prerequisites:**  Node.js
+- **React 19 + Vite**
+- **TypeScript**
+- **Tailwind CSS** (Modern Styling)
+- **Leaflet.js + OpenStreetMap** (Harita Entegrasyonu)
+- **Motion** (Akıcı Animasyonlar)
+- **Lucide React** (İkon Seti)
 
+## 📦 Kurulum ve Çalıştırma
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1. Projeyi klonlayın:
+   ```bash
+   git clone <repo-url>
+   ```
+
+2. Bağımlılıkları yükleyin:
+   ```bash
+   npm install
+   ```
+
+3. Geliştirme sunucusunu başlatın:
+   ```bash
+   npm run dev
+   ```
+
+4. Yayına hazırlayın (Build):
+   ```bash
+   npm run build
+   ```
+
+## 🌍 Canlı Yayın (Deployment)
+
+Bu proje Vercel, Netlify veya GitHub Pages gibi platformlarda sorunsuz çalışacak şekilde yapılandırılmıştır. Vercel için `vercel.json` yönlendirme kuralları eklenmiştir.
+
+---
+*Bu proje toplum yararı gözetilerek modern web teknolojileri ile geliştirilmiştir.*
