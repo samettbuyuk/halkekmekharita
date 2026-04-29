@@ -63,14 +63,14 @@ export default function AboutPage() {
               viewport={{ once: true }}
               className="relative"
             >
-              <div className="aspect-[4/5] rounded-[40px] overflow-hidden shadow-2xl border-8 border-white">
+              <div className="aspect-[4/5] rounded-[40px] overflow-hidden shadow-2xl border-8 border-white rotate-2">
                 <img 
-                  src="https://images.unsplash.com/photo-1542435503-956c469947f6?auto=format&fit=crop&q=80&w=1000" 
-                  alt="Community" 
+                  src="https://images.unsplash.com/photo-1555507036-31c3b5a0443a?auto=format&fit=crop&q=80&w=1000" 
+                  alt="Modern Halk Ekmek Tesisleri" 
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-rose-100 rounded-full blur-[100px] -z-10"></div>
+              <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-rose-100 rounded-full blur-[100px] -z-10 animate-pulse"></div>
             </motion.div>
           </div>
         </div>

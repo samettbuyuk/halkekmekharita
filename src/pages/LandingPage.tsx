@@ -14,22 +14,14 @@ export default function LandingPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-rose-50 border border-rose-100 text-rose-600 text-xs font-bold uppercase tracking-widest mb-8">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600"></span>
-              </span>
-              <span>İstanbul Genelinde 3.200+ Nokta</span>
-            </div>
-            
             <h1 className="text-6xl lg:text-8xl font-black tracking-tight text-slate-900 leading-[0.95] mb-8">
               Sofranıza En <br />
-              <span className="text-rose-600">Yakın Büfe.</span>
+              <span className="text-rose-600">Lezzetli Yol.</span>
             </h1>
             
             <p className="text-xl text-slate-600 mb-10 max-w-xl font-medium leading-relaxed">
-              İstanbul'un her köşesindeki Halk Ekmek büfelerini dijital haritada keşfedin. 
-              Saniyeler içinde konumunuzu bulun ve sağlıklı ekmeğe ulaşın.
+              İstanbul'un köklü geleneği Halk Ekmek'e ulaşmak artık çok daha kolay. 
+              Modern arayüzümüzle anında size en yakın noktayı bulun.
             </p>
             
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
@@ -55,30 +47,19 @@ export default function LandingPage() {
             transition={{ duration: 1, delay: 0.2, type: "spring" }}
             className="relative"
           >
-            <div className="relative z-10 p-4 bg-white rounded-[40px] shadow-2xl border border-slate-100 mt-12 lg:mt-0">
-              <div className="aspect-[4/5] rounded-[32px] overflow-hidden">
+            <div className="relative z-10 p-2 bg-white rounded-[40px] shadow-2xl border border-slate-100 mt-12 lg:mt-0 rotate-2">
+              <div className="aspect-[4/5] rounded-[32px] overflow-hidden border-8 border-slate-50">
                 <img
-                  src="https://images.unsplash.com/photo-1544650030-3c9baf624244?auto=format&fit=crop&q=80&w=1000"
-                  alt="Bread"
+                  src="https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=1000"
+                  alt="Taze Halk Ekmek"
                   className="w-full h-full object-cover"
                 />
-              </div>
-              <div className="absolute -bottom-6 -left-6 p-6 bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 max-w-[240px]">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-rose-600 rounded-2xl flex items-center justify-center text-white">
-                    <Clock size={24} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Anlık Veri</p>
-                    <p className="text-white font-bold italic text-sm">"Sağlıklı Ekmek Herkese"</p>
-                  </div>
-                </div>
               </div>
             </div>
             
             {/* Background elements */}
-            <div className="absolute -top-20 -right-20 w-80 h-80 bg-rose-200/40 rounded-full blur-[100px] -z-10"></div>
-            <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-orange-200/30 rounded-full blur-[100px] -z-10"></div>
+            <div className="absolute -top-10 -right-10 w-96 h-96 bg-rose-200/50 rounded-full blur-[100px] -z-10 animate-pulse"></div>
+            <div className="absolute -bottom-10 -left-10 w-96 h-96 bg-orange-200/40 rounded-full blur-[100px] -z-10 animate-pulse" style={{ animationDelay: '1s' }}></div>
           </motion.div>
         </div>
       </section>

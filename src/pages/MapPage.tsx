@@ -141,6 +141,22 @@ export default function MapPage() {
     }
   }, [userLocation, kiosks]);
 
+  // Auto-focus on user location when it becomes available for the first time
+  const [initialFocusDone, setInitialFocusDone] = useState(false);
+
+  useEffect(() => {
+    if (!initialFocusDone && map) {
+      if (userLocation) {
+        map.flyTo(userLocation, 15, { duration: 2 });
+        setInitialFocusDone(true);
+      } else if (nearestKiosk && kiosks.length > 0) {
+        // Fallback to nearest kiosk if user location is taking too long
+        map.flyTo([nearestKiosk.lat, nearestKiosk.lng], 15, { duration: 2 });
+        setInitialFocusDone(true);
+      }
+    }
+  }, [map, userLocation, nearestKiosk, initialFocusDone, kiosks.length]);
+
   const districts = useMemo(() => {
     const d = new Set(kiosks.map(k => k.district));
     return ['all', ...Array.from(d).sort()];
@@ -178,6 +194,19 @@ export default function MapPage() {
   const centerOnUser = () => {
     if (map && userLocation) {
       map.flyTo(userLocation, 15, { duration: 1 });
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const loc: [number, number] = [position.coords.latitude, position.coords.longitude];
+          setUserLocation(loc);
+          if (map) map.flyTo(loc, 15, { duration: 1 });
+        },
+        (error) => {
+          console.error("Location error:", error);
+          alert("Konumunuza erişilemedi. Lütfen tarayıcı izinlerini kontrol edin.");
+        },
+        { enableHighAccuracy: true }
+      );
     }
   };
 
@@ -248,34 +277,42 @@ export default function MapPage() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   whileHover={{ x: 5 }}
-                  className={`p-5 rounded-[24px] cursor-pointer transition-all border ${
+                  className={`p-5 rounded-[24px] cursor-pointer transition-all border group ${
                     map?.getCenter().lat === kiosk.lat ? 'bg-rose-50 border-rose-200 shadow-lg shadow-rose-100' : 'bg-white border-slate-100 hover:border-rose-200 hover:bg-slate-50'
                   }`}
                   onClick={() => handleKioskClick(kiosk)}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex flex-col">
-                      <h3 className="font-bold text-slate-900 leading-tight group-hover:text-rose-600 transition-colors">{kiosk.name}</h3>
+                      <h3 className="font-bold text-slate-900 leading-tight group-hover:text-rose-600 transition-colors">
+                        {kiosk.name.includes('HALK EKMEK') || kiosk.name.startsWith('İHE') ? kiosk.name : `İHE ${kiosk.name}`}
+                      </h3>
                       {userLocation && index === 0 && (
-                        <span className="text-[9px] font-black text-white bg-blue-600 px-2 py-0.5 rounded-full uppercase w-fit mt-1">En Yakın</span>
+                        <span className="text-[9px] font-black text-white bg-blue-600 px-2 py-0.5 rounded-full uppercase w-fit mt-1 shadow-sm">En Yakın</span>
                       )}
                     </div>
-                    <span className="text-[10px] font-black text-rose-600 bg-rose-100 px-2 py-0.5 rounded-full uppercase">{kiosk.district}</span>
+                    <span className="text-[10px] font-black text-rose-600 bg-rose-100 px-2 py-0.5 rounded-full uppercase flex-shrink-0">{kiosk.district}</span>
                   </div>
-                  <p className="text-xs text-slate-500 line-clamp-2 mb-4">{kiosk.address}</p>
+                  <p className="text-xs text-slate-500 line-clamp-2 mb-4 font-medium">{kiosk.address}</p>
                   
                   <div className="flex space-x-2">
                     <button 
-                       className="flex-1 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center"
-                       onClick={(e) => { e.stopPropagation(); window.open(`https://www.google.com/maps/dir/?api=1&destination=${kiosk.lat},${kiosk.lng}`, '_blank'); }}
+                       className="flex-1 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center justify-center shadow-sm active:scale-95"
+                       onClick={(e) => { 
+                         e.stopPropagation(); 
+                         window.open(`https://www.google.com/maps/dir/?api=1&destination=${kiosk.lat},${kiosk.lng}`, '_blank'); 
+                       }}
                     >
                       <Navigation size={12} className="mr-2" />
                       Yol Tarifi
                     </button>
                     {kiosk.phone && (
                       <button 
-                        className="w-10 h-10 flex items-center justify-center bg-slate-100 text-slate-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm"
-                        onClick={(e) => { e.stopPropagation(); window.location.href = `tel:${kiosk.phone}`; }}
+                        className="w-10 h-10 flex items-center justify-center bg-slate-100 text-slate-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm active:scale-95"
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          window.location.href = `tel:${kiosk.phone}`; 
+                        }}
                       >
                         <Phone size={14} />
                       </button>
@@ -311,56 +348,86 @@ export default function MapPage() {
             </Marker>
           )}
 
-          {sortedKiosks.map((kiosk) => (
-            <Marker 
-              key={kiosk.id} 
-              position={[kiosk.lat, kiosk.lng]}
-              icon={BreadIcon}
-            >
-              <Tooltip direction="top" offset={[0, -32]} opacity={1}>
-                {kiosk.name}
-              </Tooltip>
-              <Popup closeButton={false} className="custom-popup">
-                <div className="overflow-hidden">
-                  <div className="h-2 w-full bg-rose-600"></div>
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <h3 className="font-extrabold text-xl text-slate-900 leading-tight">{kiosk.name}</h3>
-                      <div className="w-8 h-8 bg-rose-100 rounded-lg flex items-center justify-center text-rose-600">
+          {sortedKiosks.map((kiosk, index) => {
+            const isNearest = userLocation && index === 0;
+            const displayName = kiosk.name.includes('HALK EKMEK') || kiosk.name.startsWith('İHE') 
+              ? kiosk.name 
+              : `İHE ${kiosk.name}`;
+            
+            return (
+              <Marker 
+                key={kiosk.id} 
+                position={[kiosk.lat, kiosk.lng]}
+                icon={isNearest ? L.divIcon({
+                  className: 'nearest-marker',
+                  html: `
+                    <div class="relative scale-110">
+                      <div class="w-10 h-10 bg-blue-600 rounded-full border-2 border-white shadow-2xl flex items-center justify-center text-white animate-pulse">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bread"><path d="m5 11 4-7"/><path d="m19 11-4-7"/><path d="M2 13v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M21 20H3"/></svg>
+                      </div>
+                      <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-blue-600 rotate-45 border-r border-b border-white"></div>
+                    </div>
+                  `,
+                  iconSize: [40, 44],
+                  iconAnchor: [20, 44],
+                  popupAnchor: [0, -42]
+                }) : BreadIcon}
+              >
+                <Tooltip direction="top" offset={[0, -32]} opacity={1}>
+                  <div className="font-bold flex items-center space-x-2">
+                    {isNearest && <span className="w-2 h-2 bg-blue-500 rounded-full animate-ping" />}
+                    <span>{displayName}</span>
+                  </div>
+                </Tooltip>
+                <Popup closeButton={false} className="custom-popup">
+                  <div className="overflow-hidden">
+                    <div className={`h-2 w-full ${isNearest ? 'bg-blue-600' : 'bg-rose-600'}`}></div>
+                    <div className="p-6">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex flex-col">
+                        <h3 className="font-extrabold text-xl text-slate-900 leading-tight group-hover:text-rose-600 transition-colors">
+                          {displayName}
+                        </h3>
+                        {isNearest && (
+                          <span className="text-[9px] font-black text-white bg-blue-600 px-3 py-1 rounded-full uppercase w-fit mt-1 shadow-md">Size En Yakın</span>
+                        )}
+                      </div>
+                      <div className={`w-8 h-8 ${isNearest ? 'bg-blue-100 text-blue-600' : 'bg-rose-100 text-rose-600'} rounded-lg flex items-center justify-center flex-shrink-0 ml-2`}>
                         <MapPin size={16} />
                       </div>
                     </div>
-                    
-                    <div className="space-y-4 mb-6">
-                      <div className="flex items-start">
-                        <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                          <Info size={14} className="text-slate-500" />
+                      
+                      <div className="space-y-4 mb-6">
+                        <div className="flex items-start">
+                          <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                            <Info size={14} className="text-slate-500" />
+                          </div>
+                          <p className="text-sm font-medium text-slate-600 leading-snug">{kiosk.address}</p>
                         </div>
-                        <p className="text-sm font-medium text-slate-600 leading-snug">{kiosk.address}</p>
+                        
+                        {kiosk.phone && (
+                          <div className="flex items-center">
+                            <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center mr-3 flex-shrink-0">
+                              <Phone size={14} className="text-slate-500" />
+                            </div>
+                            <p className="text-sm font-bold text-slate-900 font-mono">{kiosk.phone}</p>
+                          </div>
+                        )}
                       </div>
                       
-                      {kiosk.phone && (
-                        <div className="flex items-center">
-                          <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center mr-3 flex-shrink-0">
-                            <Phone size={14} className="text-slate-500" />
-                          </div>
-                          <p className="text-sm font-bold text-slate-900 font-mono">{kiosk.phone}</p>
-                        </div>
-                      )}
+                      <button 
+                        className={`w-full py-4 ${isNearest ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-200' : 'bg-rose-600 hover:bg-rose-700 shadow-rose-200'} text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] shadow-xl transition-all flex items-center justify-center`}
+                        onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${kiosk.lat},${kiosk.lng}`, '_blank')}
+                      >
+                        <Navigation size={14} className="mr-2" />
+                        Yol Tarifi Al
+                      </button>
                     </div>
-                    
-                    <button 
-                      className="w-full py-4 bg-rose-600 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] shadow-xl shadow-rose-200 hover:bg-rose-700 hover:shadow-rose-300 transition-all flex items-center justify-center"
-                      onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${kiosk.lat},${kiosk.lng}`, '_blank')}
-                    >
-                      <Navigation size={14} className="mr-2" />
-                      Yol Tarifi Al
-                    </button>
                   </div>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
+                </Popup>
+              </Marker>
+            );
+          })}
         </MapContainer>
 
         <AnimatePresence>
